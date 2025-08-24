@@ -1,0 +1,105 @@
+/* Dark Theme Background */
+body {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #1f2937; /* Dark gray */
+  color: #f9fafb;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Card (form container) */
+form {
+  background: #111827; /* Darker card */
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center everything */
+}
+
+/* Heading at the top */
+h2 {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  margin-bottom: 2rem;
+  text-align: center;
+  color: #f9fafb;
+}
+
+/* Input fields */
+input {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  margin-bottom: 1.5rem; /* spacing between fields */
+  border: 1px solid #374151;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  background: #1f2937;
+  color: #f9fafb;
+  text-align: center; /* center text inside inputs */
+}
+
+input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
+}
+
+/* Buttons (shared) */
+button {
+  width: 100%;
+  padding: 0.85rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 1rem;
+  border: none;
+  cursor: pointer;
+  margin-top: 0.75rem;
+  transition: 0.3s ease-in-out;
+}
+
+/* Login button */
+button.login-btn {
+  background-color: #3b82f6;
+  color: white;
+}
+
+button.login-btn:hover {
+  background-color: #2563eb;
+}
+
+/* Signup button under Login */
+button.signup-btn {
+  background-color: #10b981;
+  color: white;
+}
+
+button.signup-btn:hover {
+  background-color: #059669;
+}
+
+/* Helper text */
+.helper-text {
+  text-align: center;
+  margin-top: 1.25rem;
+  font-size: 0.9rem;
+  color: #9ca3af;
+}
+
+.helper-text a {
+  color: #3b82f6;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.helper-text a:hover {
+  text-decoration: underline;
+}
