@@ -1,6 +1,8 @@
-// Prevents additional console window on Windows in release, DO NOT REMOVE!!
-#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+use tauri_plugin_dialog::DialogExt;
 
 fn main() {
-    signup_page_lib::run()
+    tauri::Builder::default()
+        .plugin(tauri_plugin_dialog::init())
+        .run(tauri::generate_context!())
+        .expect("error while running tauri application");
 }

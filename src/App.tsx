@@ -1,20 +1,24 @@
 import React from "react";
-import { HashRouter as Router, Routes, Route } from "react-router-dom";
-import Login from "./pages/Login";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Signup from "./pages/Signup";
-import "./App.css";
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
 
 const App: React.FC = () => {
+  const loggedInUser = localStorage.getItem("loggedInUser");
+
   return (
     <Router>
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-        <div className="w-full max-w-md bg-white shadow-lg rounded-xl p-6">
-          <Routes>
-            <Route path="/" element={<Login />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-          </Routes>
-        </div>
+      <div className="flex items-center justify-center min-h-screen bg-gray-100">
+        <Routes>
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/login" element={<Login />} />
+          <Route
+            path="/dashboard"
+            element={loggedInUser ? <Dashboard /> : <Navigate to="/login" />}
+          />
+          <Route path="*" element={<Navigate to="/login" />} />
+        </Routes>
       </div>
     </Router>
   );
