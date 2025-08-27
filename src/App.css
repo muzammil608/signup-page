@@ -4,9 +4,11 @@ body {
     Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
   margin: 0;
   padding: 0;
-   background: linear-gradient(to right, #f0f9ff, #00c6ff, #0072ff); 
+  background: linear-gradient(to right, #f0f9ff, #00c6ff, #0072ff); 
   color: #f9fafb;
   min-height: 100vh;
+
+  /* Center the card */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -18,11 +20,13 @@ form {
   border-radius: 0.75rem;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
   padding: 2.5rem;
-  width: 100%;
-  max-width: 420px;
+
+  width: 380px;        /* fixed width card */
+  max-width: 90%;      /* responsive on smaller screens */
+
   display: flex;
   flex-direction: column;
-  align-items: center; /* Center everything */
+  align-items: center; /* Center everything inside */
 }
 
 /* Heading at the top */
@@ -44,15 +48,16 @@ p {
 
 /* Input fields */
 input {
-  width: 100%;
-  padding: 1rem; /* Increased padding for a better look */
-  margin-bottom: 1.5rem; /* spacing between fields */
+  width: 80%;          /* narrower for centering */
+  padding: 1rem; 
+  margin: 0 auto 1.5rem auto; /* center inputs */
   border: 1px solid #374151;
   border-radius: 0.5rem;
   font-size: 1rem;
   background: #1f2937; /* dark input background */
   color: #f9fafb;
-  text-align: center; /* center text inside inputs */
+  text-align: center;
+  display: block;
 }
 
 input:focus {
@@ -61,37 +66,60 @@ input:focus {
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
 }
 
-/* Buttons (shared) */
+/* Buttons */
 button {
-  width: 100%;
-  padding: 0.85rem;
-  border-radius: 0.5rem;
+  width: 80%; /* match input width */
+  padding: 0.9rem;
+  border-radius: 0.6rem;
   font-weight: 600;
   font-size: 1rem;
   border: none;
   cursor: pointer;
-  margin-top: 0.75rem;
-  transition: 0.3s ease-in-out;
+  margin: 0.75rem auto 0 auto;
+  transition: all 0.3s ease-in-out;
+  display: block;
+  position: relative;
+  overflow: hidden;
 }
 
 /* Login button */
 button.login-btn {
-  background-color: #3b82f6;
+  background: linear-gradient(90deg, #3b82f6, #2563eb);
   color: white;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
-
 button.login-btn:hover {
-  background-color: #2563eb;
+  background: linear-gradient(90deg, #2563eb, #1e40af);
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.5);
 }
 
-/*signup button */
+/* Signup button */
 button.signup-btn {
-  background-color: #10b981;
+  background: linear-gradient(90deg, #10b981, #059669);
   color: white;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+button.signup-btn:hover {
+  background: linear-gradient(90deg, #059669, #047857);
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 6px 18px rgba(5, 150, 105, 0.5);
 }
 
-button.signup-btn:hover {
-  background-color: #059669;
+/* Shine effect */
+button::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.25);
+  transform: skewX(-20deg);
+  transition: left 0.5s ease;
+}
+button:hover::after {
+  left: 100%;
 }
 
 /* Helper text */
@@ -107,20 +135,8 @@ button.signup-btn:hover {
   font-weight: 500;
   text-decoration: none;
 }
-
 .helper-text a:hover {
   text-decoration: underline;
 }
 
-/* Social media icons */
-.social-buttons {
-  display: flex;
-  justify-content: space-around;
-  width: 100%;
-  margin-top: 1.5rem;
-}
 
-.social-buttons a {
-  color: #f9fafb; /* icon color */
-  font-weight: bold;
-}

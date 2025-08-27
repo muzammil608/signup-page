@@ -1,91 +1,113 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use rusqlite::{params, Connection};
-use serde::{Deserialize, Serialize};
-use std::fs;
+use serde::Serialize;
 use tauri::{AppHandle};
+use std::path::PathBuf;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize)]
 struct User {
     id: i64,
     email: String,
     password: String,
 }
 
-fn init_db(_app_handle: &AppHandle) -> Result<Connection, String> {
-    // Use current working directory instead of system app data dir
-    let project_dir = std::env::current_dir()
-        .map_err(|e| format!("Failed to get current dir: {}", e))?;
 
-    let db_path = project_dir.join("app.db");
+fn get_db_path(_app_handle: &AppHandle) -> PathBuf {
+    let folder = PathBuf::from("src-tauri"); // force inside src-tauri
+    std::fs::create_dir_all(&folder).expect("⚠️ Failed to create src-tauri folder");
+    folder.join("app.db")
+}
 
+/// ✅ Initialize DB
+fn init_db(app_handle: &AppHandle) -> Result<Connection, String> {
+    let db_path = get_db_path(app_handle);
     println!("📂 Database path: {:?}", db_path);
 
-    fs::create_dir_all(&project_dir)
-        .map_err(|e| format!("Failed to create project directory: {}", e))?;
-
-    let conn = Connection::open(db_path)
-        .map_err(|e| format!("Failed to open database: {}", e))?;
-
-    // ⚡ Always drop and recreate users table
-    conn.execute("DROP TABLE IF EXISTS users", [])
-        .map_err(|e| format!("Failed to drop old users table: {}", e))?;
+    let conn = Connection::open(&db_path).map_err(|e| e.to_string())?;
 
     conn.execute(
-        "CREATE TABLE users (
+        "CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             email TEXT UNIQUE NOT NULL,
             password TEXT NOT NULL
         )",
         [],
     )
-    .map_err(|e| format!("Failed to create table: {}", e))?;
+    .map_err(|e| e.to_string())?;
 
     Ok(conn)
 }
 
 #[tauri::command]
-async fn signup(app_handle: AppHandle, email: String, password: String) -> Result<User, String> {
+fn signup(app_handle: AppHandle, email: String, password: String) -> Result<String, String> {
     let conn = init_db(&app_handle)?;
-
     conn.execute(
         "INSERT INTO users (email, password) VALUES (?1, ?2)",
         params![email, password],
     )
-    .map_err(|e| format!("Failed to insert user: {}", e))?;
-
-    let id = conn.last_insert_rowid();
-    Ok(User { id, email, password })
+    .map_err(|e| e.to_string())?;
+    Ok("Signup successful".into())
 }
 
 #[tauri::command]
-async fn login(app_handle: AppHandle, email: String, password: String) -> Result<User, String> {
+fn login(app_handle: AppHandle, email: String, password: String) -> Result<User, String> {
     let conn = init_db(&app_handle)?;
 
     let mut stmt = conn
-        .prepare("SELECT id, email, password FROM users WHERE email = ?1 AND password = ?2")
-        .map_err(|e| format!("Database error: {}", e))?;
+        .prepare("SELECT id, email, password FROM users WHERE email = ?1")
+        .map_err(|e| e.to_string())?;
 
-    let user_result: Result<(i64, String, String), rusqlite::Error> = stmt
-        .query_row(params![email, password], |row| {
-            Ok((row.get(0)?, row.get(1)?, row.get(2)?))
-        });
+    let user_result = stmt.query_row(params![email], |row| {
+        Ok(User {
+            id: row.get(0)?,
+            email: row.get(1)?,
+            password: row.get(2)?,
+        })
+    });
 
     match user_result {
-        Ok((id, user_email, user_password)) => Ok(User {
-            id,
-            email: user_email,
-            password: user_password,
-        }),
-        Err(rusqlite::Error::QueryReturnedNoRows) => Err("Invalid email or password".into()),
-        Err(e) => Err(format!("Database error: {}", e)),
+        Ok(user) => {
+            if user.password == password {
+                Ok(user)
+            } else {
+                Err("Invalid password".into())
+            }
+        }
+        Err(_) => Err("User not found".into()),
     }
+}
+
+/// ✅ New command: Fetch all users
+#[tauri::command]
+fn get_all_users(app_handle: AppHandle) -> Result<Vec<User>, String> {
+    let conn = init_db(&app_handle)?;
+
+    let mut stmt = conn
+        .prepare("SELECT id, email, password FROM users")
+        .map_err(|e| e.to_string())?;
+
+    let users_iter = stmt
+        .query_map([], |row| {
+            Ok(User {
+                id: row.get(0)?,
+                email: row.get(1)?,
+                password: row.get(2)?,
+            })
+        })
+        .map_err(|e| e.to_string())?;
+
+    let mut users = Vec::new();
+    for user in users_iter {
+        users.push(user.map_err(|e| e.to_string())?);
+    }
+
+    Ok(users)
 }
 
 fn main() {
     tauri::Builder::default()
-        .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![signup, login])
+        .invoke_handler(tauri::generate_handler![signup, login, get_all_users])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
